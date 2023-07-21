@@ -1,9 +1,10 @@
 package crx3
 
 import (
-	"crx3-info/pb"
 	"encoding/binary"
 	"io/ioutil"
+
+	"github.com/loyalpartner/crx3-info/pb"
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/encoding/protojson"

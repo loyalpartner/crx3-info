@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/loyalpartner/crx3"
+	"github.com/loyalpartner/crx3-info"
 )
 
 var (
