@@ -60,5 +60,5 @@ func (c *Crx3) CrxId() string {
 	signedData := &pb.SignedData{}
 	proto.Unmarshal(c.Header.SignedHeaderData, signedData)
 
-	return FromBytes(signedData.CrxId[:16])
+	return FromBytes(signedData.CrxId)
 }
