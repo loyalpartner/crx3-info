@@ -2,7 +2,7 @@ package crx3
 
 import (
 	"encoding/binary"
-	"io/ioutil"
+	"os"
 
 	"github.com/loyalpartner/crx3-info/pb"
 
@@ -30,7 +30,7 @@ func NewCrx3(path string) *Crx3 {
 }
 
 func (c *Crx3) Load() error {
-	raw, err := ioutil.ReadFile(c.Path)
+	raw, err := os.ReadFile(c.Path)
 	if err != nil {
 		return err
 	}
