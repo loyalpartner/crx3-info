@@ -1,4 +1,4 @@
-module crx3-info
+module github.com/loyalpartner/crx3-info
 
 go 1.20
 

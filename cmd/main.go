@@ -1,12 +1,22 @@
 package main
 
 import (
-	"crx3-info"
+	"flag"
 	"log"
+
+	"github.com/loyalpartner/crx3"
+)
+
+var (
+	path string
 )
 
 func main() {
-	crx := crx3.NewCrx3("/home/lee/Downloads/3085566c-ab5e-41c3-931b-fff6d49b1146.crx")
+
+	flag.StringVar(&path, "path", "", "crx file path")
+	flag.Parse()
+
+	crx := crx3.NewCrx3(path)
 
 	if err := crx.Load(); err != nil {
 		log.Fatal(err)
