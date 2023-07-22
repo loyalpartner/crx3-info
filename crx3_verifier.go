@@ -2,68 +2,81 @@ package crx3
 
 import (
 	"crypto"
+
+	"github.com/loyalpartner/crx3-info/pb"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
 	SignedDataPrefix string = "CRX3 SignedData\x00"
 )
 
-type verifier struct {
+type TaskFunc func() error
+
+type crxVerifier struct {
 	crx       *Crx3
 	verifiers []SignatureVerifier
 }
 
-type verifierList []SignatureVerifier
-
-func (v *verifierList) Append(verifier SignatureVerifier) {
-	*v = append(*v, verifier)
-}
-
-func NewVerifier(crx *Crx3) (*verifier, error) {
-	v := &verifier{}
+func NewVerifier(crx *Crx3) (*crxVerifier, error) {
+	v := &crxVerifier{}
 	if err := v.initialize(crx); err != nil {
 		return nil, err
 	}
 	return v, nil
 }
 
-func (c *verifier) initialize(crx *Crx3) error {
+func (c *crxVerifier) initialize(crx *Crx3) error {
 	c.crx = crx
-	for _, rsaProof := range crx.Header.Sha256WithRsa {
-		rsaVerifier, err := NewRSAVerifier(crypto.SHA256, rsaProof)
-		if err != nil {
-			return err
-		}
-		c.verifiers = append(c.verifiers, rsaVerifier)
-	}
-	for _, ecdsaProof := range crx.Header.Sha256WithEcdsa {
-		edcsaVerifier, err := NewECDSAVerifier(crypto.SHA256, ecdsaProof)
-		if err != nil {
-			return nil
-		}
-		c.verifiers = append(c.verifiers, edcsaVerifier)
-	}
-	return nil
+
+	g := &errgroup.Group{}
+	g.Go(c.fnInitializeVerifiers(c.crx.Header.Sha256WithRsa))
+	g.Go(c.fnInitializeVerifiers(c.crx.Header.Sha256WithEcdsa))
+	return g.Wait()
 }
 
-func (c *verifier) update(data []byte) {
+func (c *crxVerifier) fnInitializeVerifiers(proofs []*pb.AsymmetricKeyProof) TaskFunc {
+	return func() error {
+		return c.initializeVerifiers(proofs)
+	}
+}
+
+func (c *crxVerifier) initializeVerifiers(proofs []*pb.AsymmetricKeyProof) error {
+	g := &errgroup.Group{}
+	for _, proof := range proofs {
+		g.Go(c.fnAddSignatureVerifier(proof))
+	}
+	return g.Wait()
+}
+
+func (c *crxVerifier) fnAddSignatureVerifier(proof *pb.AsymmetricKeyProof) TaskFunc {
+	return func() error {
+		verifier, err := NewSignatureVerifier(crypto.SHA256, proof)
+		if err == nil {
+			c.verifiers = append(c.verifiers, verifier)
+		}
+		return err
+	}
+}
+
+func (c *crxVerifier) update(data []byte) {
 	for _, v := range c.verifiers {
 		v.Update(data)
 	}
 }
 
-func (c *verifier) verify() error {
+func (c *crxVerifier) verify() error {
+	g := &errgroup.Group{}
 	for _, verifier := range c.verifiers {
-		if err := verifier.Verify(); err != nil {
-			return err
-		}
+		g.Go(verifier.Verify)
 	}
-	return nil
+	return g.Wait()
 }
 
-func (c *verifier) Verify() error {
+func (c *crxVerifier) Verify() error {
 	hdr := c.crx.Header
 
+	// TODO: add crx_reader.go
 	c.update([]byte(SignedDataPrefix))
 	c.update(c.crx.LeEncodedSignedDataLen())
 	c.update(hdr.SignedHeaderData)

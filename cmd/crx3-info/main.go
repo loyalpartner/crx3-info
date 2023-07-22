@@ -26,7 +26,7 @@ func main() {
 	log.Printf("Magic: %s", crx.Magic)
 	log.Printf("Version: %d", crx.Version)
 	log.Printf("HeaderSize: %d", crx.HeaderSize)
-	log.Printf("Header: %+v", crx.HeaderDetails())
+	log.Printf("Header: %+v", crx.JsonEncodedHeader())
 
 	err := crx.Verify()
 	if err != nil {

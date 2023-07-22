@@ -5,10 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/sha256"
-	"crypto/x509"
 	"hash"
-
-	"github.com/loyalpartner/crx3-info/pb"
 )
 
 type RSAVerifier struct {
@@ -18,22 +15,13 @@ type RSAVerifier struct {
 	hasher    hash.Hash
 }
 
-func NewRSAVerifier(algorithm crypto.Hash, proof *pb.AsymmetricKeyProof) (SignatureVerifier, error) {
-	pubKey, err := x509.ParsePKIXPublicKey(proof.PublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	rsaPubKey, ok := pubKey.(*rsa.PublicKey)
-	if !ok {
-		return nil, ErrNotRSAPublicKey
-	}
+func NewRSAVerifier(algorithm crypto.Hash, pubKey *rsa.PublicKey, signature []byte) SignatureVerifier {
 
 	return &RSAVerifier{
-		publicKey: rsaPubKey,
+		publicKey: pubKey,
 		algorithm: algorithm,
-		signature: proof.Signature,
-	}, nil
+		signature: signature,
+	}
 }
 
 func (s *RSAVerifier) Hasher() hash.Hash {

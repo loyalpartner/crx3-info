@@ -48,7 +48,7 @@ func (c *Crx3) Load() error {
 	return nil
 }
 
-func (c *Crx3) HeaderDetails() string {
+func (c *Crx3) JsonEncodedHeader() string {
 	return protojson.Format(c.Header)
 }
 

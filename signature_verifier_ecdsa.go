@@ -4,10 +4,7 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/sha256"
-	"crypto/x509"
 	"hash"
-
-	"github.com/loyalpartner/crx3-info/pb"
 )
 
 type ECDSAVerifier struct {
@@ -19,23 +16,14 @@ type ECDSAVerifier struct {
 
 func NewECDSAVerifier(
 	algorithm crypto.Hash,
-	proof *pb.AsymmetricKeyProof,
-) (SignatureVerifier, error) {
-
-	pubilcKey, err := x509.ParsePKIXPublicKey(proof.PublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	ecdsaPublicKey, ok := pubilcKey.(*ecdsa.PublicKey)
-	if !ok {
-		return nil, ErrNotEcdsaPublicKey
-	}
+	publicKey *ecdsa.PublicKey,
+	signature []byte,
+) SignatureVerifier {
 	return &ECDSAVerifier{
 		algorithm: algorithm,
-		publicKey: ecdsaPublicKey,
-		signature: proof.Signature,
-	}, nil
+		publicKey: publicKey,
+		signature: signature,
+	}
 }
 
 func (v *ECDSAVerifier) Hasher() hash.Hash {
