@@ -27,4 +27,11 @@ func main() {
 	log.Printf("Version: %d", crx.Version)
 	log.Printf("HeaderSize: %d", crx.HeaderSize)
 	log.Printf("Header: %+v", crx.HeaderDetails())
+
+	err := crx.Verify()
+	if err != nil {
+		log.Printf("%v", err)
+	} else {
+		log.Printf("Verified: %+v", true)
+	}
 }
