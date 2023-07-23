@@ -15,7 +15,7 @@ type RSAVerifier struct {
 	hasher    hash.Hash
 }
 
-func NewRSAVerifier(algorithm crypto.Hash, pubKey *rsa.PublicKey, signature []byte) SignatureVerifier {
+func NewRSAVerifier(algorithm crypto.Hash, pubKey *rsa.PublicKey, signature []byte) Verifier {
 
 	return &RSAVerifier{
 		publicKey: pubKey,

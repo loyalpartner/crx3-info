@@ -18,13 +18,8 @@ const (
 	// RSA_PSS_SHA256
 )
 
-type SignatureVerifier interface {
-	Update(data []byte) error
-	Verify() error
-}
-
-func NewSignatureVerifier(algorithm crypto.Hash,
-	proof *pb.AsymmetricKeyProof) (SignatureVerifier, error) {
+func NewVerifierImpl(algorithm crypto.Hash,
+	proof *pb.AsymmetricKeyProof) (Verifier, error) {
 
 	pubKey, err := x509.ParsePKIXPublicKey(proof.PublicKey)
 	if err != nil {

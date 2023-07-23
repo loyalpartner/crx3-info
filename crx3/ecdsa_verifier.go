@@ -18,7 +18,7 @@ func NewECDSAVerifier(
 	algorithm crypto.Hash,
 	publicKey *ecdsa.PublicKey,
 	signature []byte,
-) SignatureVerifier {
+) Verifier {
 	return &ECDSAVerifier{
 		algorithm: algorithm,
 		publicKey: publicKey,

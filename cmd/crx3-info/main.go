@@ -4,32 +4,31 @@ import (
 	"flag"
 	"log"
 
-	"github.com/loyalpartner/crx3-info"
+	"github.com/loyalpartner/crx3-info/crx3"
 )
 
 var (
 	path string
 )
 
-func main() {
-
+func init() {
 	flag.StringVar(&path, "path", "", "crx file path")
 	flag.Parse()
+}
 
-	crx := crx3.NewCrx3(path)
-
-	if err := crx.Load(); err != nil {
+func main() {
+	crx, err := crx3.Read(path)
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("CrxID: %s", crx.CrxId())
+	log.Printf("CrxID: %s", crx.ID)
 	log.Printf("Magic: %s", crx.Magic)
 	log.Printf("Version: %d", crx.Version)
 	log.Printf("HeaderSize: %d", crx.HeaderSize)
 	log.Printf("Header: %+v", crx.JsonEncodedHeader())
 
-	err := crx.Verify()
-	if err != nil {
+	if err := crx3.Verify(crx); err != nil {
 		log.Printf("%v", err)
 	} else {
 		log.Printf("Verified: %+v", true)
